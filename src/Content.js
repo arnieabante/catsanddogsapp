@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import { Card, Container, Row, Col, Button, Form } from 'react-bootstrap'
+import { Card, Container, Row, Col, Button, Form, Accordion } from 'react-bootstrap'
 import Tab from 'react-bootstrap/Tab'
 import Tabs from 'react-bootstrap/Tabs'
 import Table from 'react-bootstrap/Table'
@@ -7,68 +7,73 @@ import Spinner from 'react-bootstrap/Spinner'
 import Alert from 'react-bootstrap/Alert'
 import axios from 'axios'
 import SidePanel from './SidePanel'
+import JSONPretty from 'react-json-pretty'
 
 let Content = () => {
 
     let [state, setState] = useState({
-            jsonData: {
-                json: ''
-            },
+            page:1,
+            limit:1,
+            breedId:'',
             outputJson: [],
             isProcessing: false,
             jsonField:'',
-            errorMsg:''
+            errorMsg:'',
+            breedsJson: [],
+            imagesJson: [],
+            listJson: [],
+            imagePerIdJson: [],
     });
 
     let handleChange = (e) => {
+        const value = e.target.value;
         setState({
             ...state,
-            jsonData:{
-                ...state.json,
-                [e.target.name]:e.target.value
-            },
-            jsonField:e.target.value
-
+            [e.target.name]: value
         });
     }
 
-    let Process = (e) => {
+    let ProcessBreeds = (e) => {
         e.preventDefault();
-        var data = state.jsonData;
+
+        let page = state.page;
+        let limit = state.limit;
 
         //Set state of isProcessing to true
         setState({
-            outputJson: [],
+            breedsJson: [],
             isProcessing:true,
             errorMsg: ''
         });
 
-        axios.post(window.api_url + 'api/timberdocking/processJson',  data, {
+        axios.get(window.api_url + 'api/v1/breeds?page=' + page + '&limit=' + limit, {
             headers : {
                 'Content-Type': 'application/json',
                 'X-Request-With': 'XMLHttpRequest'
             }
         }).then((response) => {
+            console.log(response.data);
             if(response.data.success === true){
                 setState({
-                    outputJson:response.data.data,
+                    breedsJson:response.data.results,
                     isProcessing:false,
-                    errorMsg: '',
-                    jsonField:''
+                    page:'',
+                    limit:''
                 });
             } else {
                 setState({
-                    outputJson:[],
+                    breedsJson:[],
                     isProcessing:false,
                     errorMsg: response.data.message,
-                    jsonField:''
+                    page:'',
+                    limit:''
                 });
             }
         })
         .catch(function (error) {
             console.log(error);
             setState({
-                outputJson:[],
+                breedsJson:[],
                 isProcessing:false
             });
         });
@@ -89,18 +94,128 @@ let Content = () => {
         <>
             <Container className="mt-3">
                 <Row>
-                    <SidePanel/>
-                    <Col md={9}>
+                    <Col md={12}>
                         <Card className="shadow-lg">    
                             <Card.Header className="p-3" style={{backgroundColor: '#087A46'}}>
-                                <h5 style={{color:'white'}}>Ouput</h5>
+                                <h5 style={{color:'white'}}>API Documentation</h5>
                             </Card.Header>
                             <Card.Body>
-                                <Tabs defaultActiveKey="json" className='mb-3'>
-                                    <Tab eventKey="json" title="JSON">
-                                        {state.outputJson.length === 0?'':JSON.stringify(state.outputJson)}
-                                    </Tab>
-                                </Tabs>
+                                <Accordion defaultActiveKey="0">
+                                    <Accordion.Item eventKey="0">
+                                        <Accordion.Header>v1/breeds</Accordion.Header>
+                                        <Accordion.Body>
+                                            <h5>Exercise A</h5>
+                                            <label><b>Description:</b></label> Returns a paginated list of cat and dog breeds.
+                                            <br />
+                                            <label><b>Sample Request:</b></label> 127.0.0.1/catsanddogs_build/api/public/v1/breeds?page=1&limit=20
+                                            <hr />
+                                            <div className="row">
+                                                <div className="col-md-1">Page</div>
+                                                <div className="col-md-3"><input type="textbox" name="page" value={state.page} className="form-control" onChange={handleChange}></input></div>
+                                            </div>
+                                            <br />
+                                            <div className="row">
+                                                <div className="col-md-1">Limit</div>
+                                                <div className="col-md-3"><input type="textbox" className="form-control" value={state.limit} name="limit" onChange={handleChange}></input></div>
+                                                <div className="col-md-1">
+                                                    <Button variant="success" type="submit" onClick={ProcessBreeds}>Run</Button>
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <Tabs defaultActiveKey="json" className='mb-3'>
+                                                <Tab eventKey="json" title="JSON Output">
+                                                    <JSONPretty id="json-pretty" data={state.breedsJson}></JSONPretty>
+                                                </Tab>
+                                            </Tabs>
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                    <Accordion.Item eventKey="1">
+                                        <Accordion.Header>v1/breeds/:breed</Accordion.Header>
+                                        <Accordion.Body>
+                                        <h5>Exercise B</h5>
+                                            <label><b>Description:</b></label> Returns a paginated image of cats or dogs by breed
+                                            <br />
+                                            <label><b>Sample Request:</b></label> 127.0.0.1/catsanddogs_build/api/public/v1/breeds/:cat?page=1&limit=20
+                                            <hr />
+                                            <div className="row">
+                                                <div className="col-md-1">Type</div>
+                                                <div className="col-md-3">
+                                                    <select className="form-control">
+                                                        <option>cat</option>
+                                                        <option>dog</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <div className="row">
+                                                <div className="col-md-1">Page</div>
+                                                <div className="col-md-3"><input type="textbox" className="form-control"></input></div>
+                                            </div>
+                                            <br />
+                                            <div className="row">
+                                                <div className="col-md-1">Limit</div>
+                                                <div className="col-md-3"><input type="textbox" className="form-control"></input></div>
+                                                <div className="col-md-1">
+                                                    <Button variant="success" type="submit" onClick={ProcessBreeds}>Run</Button>
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <Tabs defaultActiveKey="json" className='mb-3'>
+                                                <Tab eventKey="json" title="JSON Output">
+                                                </Tab>
+                                            </Tabs>
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                    <Accordion.Item eventKey="2">
+                                        <Accordion.Header>v1/list</Accordion.Header>
+                                        <Accordion.Body>
+                                            <h5>Exercise C</h5>
+                                            <label><b>Description:</b></label> Returns a combined list of cats and dogs.
+                                            <br />
+                                            <label><b>Sample Request:</b></label> 127.0.0.1/catsanddogs_build/api/public/v1/list?page=1&limit=20
+                                            <hr />
+                                            <div className="row">
+                                                <div className="col-md-1">Page</div>
+                                                <div className="col-md-3"><input type="textbox" className="form-control"></input></div>
+                                            </div>
+                                            <br />
+                                            <div className="row">
+                                                <div className="col-md-1">Limit</div>
+                                                <div className="col-md-3"><input type="textbox" className="form-control"></input></div>
+                                                <div className="col-md-1">
+                                                    <Button variant="success" type="submit" onClick={ProcessBreeds}>Run</Button>
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <Tabs defaultActiveKey="json" className='mb-3'>
+                                                <Tab eventKey="json" title="JSON Output">
+                                                </Tab>
+                                            </Tabs>
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                    <Accordion.Item eventKey="3">
+                                        <Accordion.Header>v1/list/:type/:id</Accordion.Header>
+                                        <Accordion.Body>
+                                            <h5>Exercise A</h5>
+                                            <label><b>Description:</b></label> Returns an image of either cat or dog by ID.
+                                            <br />
+                                            <label><b>Sample Request:</b></label> 127.0.0.1/catsanddogs_build/api/public/v1/list/cat/SJyBfg5NX
+                                            <hr />
+                                            <div className="row">
+                                                <div className="col-md-1">Image ID:</div>
+                                                <div className="col-md-3"><input type="textbox" className="form-control"></input></div>
+                                                <div className="col-md-1">
+                                                    <Button variant="success" type="submit" onClick={ProcessBreeds}>Run</Button>
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <Tabs defaultActiveKey="json" className='mb-3'>
+                                                <Tab eventKey="json" title="JSON Output">
+                                                </Tab>
+                                            </Tabs>
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                </Accordion>
                             </Card.Body>
                         </Card>
                         {state.errorMsg === ''?'':
