@@ -18,8 +18,7 @@ let Content = () => {
             type:'dog',
             outputJson: [],
             isProcessing: false,
-            jsonField:'',
-            errorMsg:'',
+            jsonField:''
     });
 
     let handleChange = (e) => {
@@ -40,7 +39,6 @@ let Content = () => {
         setState({
             outputJson:[],
             isProcessing:true,
-            errorMsg: ''
         });
 
         axios.get(window.api_url + 'api/v1/breeds?page=' + page + '&limit=' + limit, {
@@ -49,7 +47,6 @@ let Content = () => {
                 'X-Request-With': 'XMLHttpRequest'
             }
         }).then((response) => {
-            console.log(response.data);
             if(response.data.success === true){
                 setState({
                     outputJson:response.data.results,
@@ -61,7 +58,6 @@ let Content = () => {
                 setState({
                     outputJson:[],
                     isProcessing:false,
-                    errorMsg: response.data.message,
                     page:'',
                     limit:''
                 });
@@ -86,8 +82,7 @@ let Content = () => {
         //Set state of isProcessing to true
         setState({
             outputJson: [],
-            isProcessing:true,
-            errorMsg: ''
+            isProcessing:true
         });
 
         axios.get(window.api_url + 'api/v1/breeds/'+type+'?page=' + page + '&limit=' + limit, {
@@ -96,21 +91,21 @@ let Content = () => {
                 'X-Request-With': 'XMLHttpRequest'
             }
         }).then((response) => {
-            console.log(response.data);
             if(response.data.success === true){
                 setState({
                     outputJson:response.data.results,
                     isProcessing:false,
                     page:'',
-                    limit:''
+                    limit:'',
+                    type:'',
                 });
             } else {
                 setState({
                     outputJson:[],
                     isProcessing:false,
-                    errorMsg: response.data.message,
                     page:'',
-                    limit:''
+                    limit:'',
+                    type:'',
                 });
             }
         })
@@ -133,7 +128,6 @@ let Content = () => {
         setState({
             outputJson:[],
             isProcessing:true,
-            errorMsg: ''
         });
 
         axios.get(window.api_url + 'api/v1/list?page=' + page + '&limit=' + limit, {
@@ -142,7 +136,6 @@ let Content = () => {
                 'X-Request-With': 'XMLHttpRequest'
             }
         }).then((response) => {
-            console.log(response.data);
             if(response.data.success === true){
                 setState({
                     outputJson:response.data.results,
@@ -154,7 +147,6 @@ let Content = () => {
                 setState({
                     outputJson:[],
                     isProcessing:false,
-                    errorMsg: response.data.message,
                     page:'',
                     limit:''
                 });
@@ -178,8 +170,7 @@ let Content = () => {
         //Set state of isProcessing to true
         setState({
             outputJson:[],
-            isProcessing:true,
-            errorMsg: ''
+            isProcessing:true
         });
 
         axios.get(window.api_url + 'api/v1/list/'+type+'/'+breedId, {
@@ -188,21 +179,19 @@ let Content = () => {
                 'X-Request-With': 'XMLHttpRequest'
             }
         }).then((response) => {
-            console.log(response.data);
-            if(response.data.success === true){
+            if(response.data.success === true && response.data.results !== null){
                 setState({
                     outputJson:response.data.results,
                     isProcessing:false,
-                    page:'',
-                    limit:''
+                    breedId:'',
+                    type:''
                 });
             } else {
                 setState({
                     outputJson:[],
                     isProcessing:false,
-                    errorMsg: response.data.message,
-                    page:'',
-                    limit:''
+                    breedId:'',
+                    type:''
                 });
             }
         })
@@ -334,11 +323,6 @@ let Content = () => {
                                 </Accordion>
                             </Card.Body>
                         </Card>
-                        {state.errorMsg === ''?'':
-                            <Alert key="danger" variant="danger" className="mt-3">
-                                {state.errorMsg}
-                            </Alert>
-                        }
                     </Col>
                     <Col md={7}>
                     <Card className="shadow-lg">    
@@ -349,7 +333,7 @@ let Content = () => {
                                 <Tabs defaultActiveKey="json" className='mb-3'>
                                 <Tab eventKey="json" title="JSON Output">
                                     {state.isProcessing===true?<Spinner animation="border"/>:
-                                        state.outputJson.length > 0?<JSONPretty id="json-pretty" data={state.outputJson}></JSONPretty>:''
+                                        <JSONPretty id="json-pretty" data={state.outputJson}></JSONPretty>
                                     }
                                 </Tab>
                                 </Tabs>
