@@ -15,14 +15,11 @@ let Content = () => {
             page:1,
             limit:20,
             breedId:'',
+            type:'dog',
             outputJson: [],
             isProcessing: false,
             jsonField:'',
             errorMsg:'',
-            breedsJson: [],
-            imagesJson: [],
-            listJson: [],
-            imagePerIdJson: [],
     });
 
     let handleChange = (e) => {
@@ -33,7 +30,7 @@ let Content = () => {
         });
     }
 
-    let ProcessBreeds = (e) => {
+    let GetBreeds = (e) => {
         e.preventDefault();
 
         let page = state.page;
@@ -41,7 +38,7 @@ let Content = () => {
 
         //Set state of isProcessing to true
         setState({
-            breedsJson: [],
+            outputJson:[],
             isProcessing:true,
             errorMsg: ''
         });
@@ -55,14 +52,14 @@ let Content = () => {
             console.log(response.data);
             if(response.data.success === true){
                 setState({
-                    breedsJson:response.data.results,
+                    outputJson:response.data.results,
                     isProcessing:false,
                     page:'',
                     limit:''
                 });
             } else {
                 setState({
-                    breedsJson:[],
+                    outputJson:[],
                     isProcessing:false,
                     errorMsg: response.data.message,
                     page:'',
@@ -73,20 +70,148 @@ let Content = () => {
         .catch(function (error) {
             console.log(error);
             setState({
-                breedsJson:[],
+                outputJson:[],
                 isProcessing:false
             });
         });
     };
 
-    let ClearFields = (e) => {
+    let GetImagePerType = (e) => {
         e.preventDefault();
+
+        let type = state.type;
+        let page = state.page;
+        let limit = state.limit;
+
         //Set state of isProcessing to true
         setState({
             outputJson: [],
-            isProcessing:false,
-            errorMsg:'',
-            jsonField:''
+            isProcessing:true,
+            errorMsg: ''
+        });
+
+        axios.get(window.api_url + 'api/v1/breeds/'+type+'?page=' + page + '&limit=' + limit, {
+            headers : {
+                'Content-Type': 'application/json',
+                'X-Request-With': 'XMLHttpRequest'
+            }
+        }).then((response) => {
+            console.log(response.data);
+            if(response.data.success === true){
+                setState({
+                    outputJson:response.data.results,
+                    isProcessing:false,
+                    page:'',
+                    limit:''
+                });
+            } else {
+                setState({
+                    outputJson:[],
+                    isProcessing:false,
+                    errorMsg: response.data.message,
+                    page:'',
+                    limit:''
+                });
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            setState({
+                outputJson:[],
+                isProcessing:false
+            });
+        });
+    };
+
+    let GetList = (e) => {
+        e.preventDefault();
+
+        let page = state.page;
+        let limit = state.limit;
+
+        //Set state of isProcessing to true
+        setState({
+            outputJson:[],
+            isProcessing:true,
+            errorMsg: ''
+        });
+
+        axios.get(window.api_url + 'api/v1/list?page=' + page + '&limit=' + limit, {
+            headers : {
+                'Content-Type': 'application/json',
+                'X-Request-With': 'XMLHttpRequest'
+            }
+        }).then((response) => {
+            console.log(response.data);
+            if(response.data.success === true){
+                setState({
+                    outputJson:response.data.results,
+                    isProcessing:false,
+                    page:'',
+                    limit:''
+                });
+            } else {
+                setState({
+                    outputJson:[],
+                    isProcessing:false,
+                    errorMsg: response.data.message,
+                    page:'',
+                    limit:''
+                });
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            setState({
+                outputJson:[],
+                isProcessing:false
+            });
+        });
+    };
+
+    let GetImageById = (e) => {
+        e.preventDefault();
+
+        let type = state.type;
+        let breedId = state.breedId;
+
+        //Set state of isProcessing to true
+        setState({
+            outputJson:[],
+            isProcessing:true,
+            errorMsg: ''
+        });
+
+        axios.get(window.api_url + 'api/v1/list/'+type+'/'+breedId, {
+            headers : {
+                'Content-Type': 'application/json',
+                'X-Request-With': 'XMLHttpRequest'
+            }
+        }).then((response) => {
+            console.log(response.data);
+            if(response.data.success === true){
+                setState({
+                    outputJson:response.data.results,
+                    isProcessing:false,
+                    page:'',
+                    limit:''
+                });
+            } else {
+                setState({
+                    outputJson:[],
+                    isProcessing:false,
+                    errorMsg: response.data.message,
+                    page:'',
+                    limit:''
+                });
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            setState({
+                outputJson:[],
+                isProcessing:false
+            });
         });
     };
 
@@ -94,7 +219,7 @@ let Content = () => {
         <>
             <Container className="mt-3">
                 <Row>
-                    <Col md={12}>
+                    <Col md={5}>
                         <Card className="shadow-lg">    
                             <Card.Header className="p-3" style={{backgroundColor: '#087A46'}}>
                                 <h5 style={{color:'white'}}>API Documentation</h5>
@@ -110,23 +235,17 @@ let Content = () => {
                                             <label><b>Sample Request:</b></label> 127.0.0.1/catsanddogs_build/api/public/v1/breeds?page=1&limit=20
                                             <hr />
                                             <div className="row">
-                                                <div className="col-md-1">Page</div>
+                                                <div className="col-md-2">Page</div>
                                                 <div className="col-md-3"><input type="textbox" name="page" value={state.page} className="form-control" onChange={handleChange}></input></div>
                                             </div>
                                             <br />
                                             <div className="row">
-                                                <div className="col-md-1">Limit</div>
+                                                <div className="col-md-2">Limit</div>
                                                 <div className="col-md-3"><input type="textbox" className="form-control" value={state.limit} name="limit" onChange={handleChange}></input></div>
                                                 <div className="col-md-1">
-                                                    <Button variant="success" type="submit" onClick={ProcessBreeds}>Run</Button>
+                                                    <Button variant="success" type="submit" onClick={GetBreeds}>Run</Button>
                                                 </div>
                                             </div>
-                                            <br />
-                                            <Tabs defaultActiveKey="json" className='mb-3'>
-                                                <Tab eventKey="json" title="JSON Output">
-                                                    <JSONPretty id="json-pretty" data={state.breedsJson}></JSONPretty>
-                                                </Tab>
-                                            </Tabs>
                                         </Accordion.Body>
                                     </Accordion.Item>
                                     <Accordion.Item eventKey="1">
@@ -138,7 +257,7 @@ let Content = () => {
                                             <label><b>Sample Request:</b></label> 127.0.0.1/catsanddogs_build/api/public/v1/breeds/:cat?page=1&limit=20
                                             <hr />
                                             <div className="row">
-                                                <div className="col-md-1">Type</div>
+                                                <div className="col-md-2">Type</div>
                                                 <div className="col-md-3">
                                                     <select className="form-control" name="type" value={state.type} onChange={handleChange}> 
                                                         <option value="">Select one</option>
@@ -149,22 +268,17 @@ let Content = () => {
                                             </div>
                                             <br />
                                             <div className="row">
-                                                <div className="col-md-1">Page</div>
-                                                <div className="col-md-3"><input type="textbox" className="form-control"></input></div>
+                                                <div className="col-md-2">Page</div>
+                                                <div className="col-md-3"><input type="textbox" name="page" value={state.page} className="form-control" onChange={handleChange}></input></div>
                                             </div>
                                             <br />
                                             <div className="row">
-                                                <div className="col-md-1">Limit</div>
-                                                <div className="col-md-3"><input type="textbox" className="form-control"></input></div>
+                                                <div className="col-md-2">Limit</div>
+                                                <div className="col-md-3"><input type="textbox" className="form-control" value={state.limit} name="limit" onChange={handleChange}></input></div>
                                                 <div className="col-md-1">
-                                                    <Button variant="success" type="submit" onClick={ProcessBreeds}>Run</Button>
+                                                    <Button variant="success" type="submit" onClick={GetImagePerType}>Run</Button>
                                                 </div>
                                             </div>
-                                            <br />
-                                            <Tabs defaultActiveKey="json" className='mb-3'>
-                                                <Tab eventKey="json" title="JSON Output">
-                                                </Tab>
-                                            </Tabs>
                                         </Accordion.Body>
                                     </Accordion.Item>
                                     <Accordion.Item eventKey="2">
@@ -176,44 +290,45 @@ let Content = () => {
                                             <label><b>Sample Request:</b></label> 127.0.0.1/catsanddogs_build/api/public/v1/list?page=1&limit=20
                                             <hr />
                                             <div className="row">
-                                                <div className="col-md-1">Page</div>
-                                                <div className="col-md-3"><input type="textbox" className="form-control"></input></div>
+                                                <div className="col-md-2">Page</div>
+                                                <div className="col-md-3"><input type="textbox" name="page" value={state.page} className="form-control" onChange={handleChange}></input></div>
                                             </div>
                                             <br />
                                             <div className="row">
-                                                <div className="col-md-1">Limit</div>
-                                                <div className="col-md-3"><input type="textbox" className="form-control"></input></div>
+                                                <div className="col-md-2">Limit</div>
+                                                <div className="col-md-3"><input type="textbox" className="form-control" value={state.limit} name="limit" onChange={handleChange}></input></div>
                                                 <div className="col-md-1">
-                                                    <Button variant="success" type="submit" onClick={ProcessBreeds}>Run</Button>
+                                                    <Button variant="success" type="submit" onClick={GetList}>Run</Button>
                                                 </div>
                                             </div>
-                                            <br />
-                                            <Tabs defaultActiveKey="json" className='mb-3'>
-                                                <Tab eventKey="json" title="JSON Output">
-                                                </Tab>
-                                            </Tabs>
                                         </Accordion.Body>
                                     </Accordion.Item>
                                     <Accordion.Item eventKey="3">
                                         <Accordion.Header>v1/list/:type/:id</Accordion.Header>
                                         <Accordion.Body>
-                                            <h5>Exercise A</h5>
+                                            <h5>Exercise D</h5>
                                             <label><b>Description:</b></label> Returns an image of either cat or dog by ID.
                                             <br />
                                             <label><b>Sample Request:</b></label> 127.0.0.1/catsanddogs_build/api/public/v1/list/cat/SJyBfg5NX
                                             <hr />
                                             <div className="row">
-                                                <div className="col-md-1">Image ID:</div>
-                                                <div className="col-md-3"><input type="textbox" className="form-control"></input></div>
-                                                <div className="col-md-1">
-                                                    <Button variant="success" type="submit" onClick={ProcessBreeds}>Run</Button>
+                                                <div className="col-md-2">Type</div>
+                                                <div className="col-md-3">
+                                                    <select className="form-control" name="type" value={state.type} onChange={handleChange}> 
+                                                        <option value="">Select one</option>
+                                                        <option value="cat">cat</option>
+                                                        <option value="dog">dog</option>
+                                                    </select>
                                                 </div>
                                             </div>
                                             <br />
-                                            <Tabs defaultActiveKey="json" className='mb-3'>
-                                                <Tab eventKey="json" title="JSON Output">
-                                                </Tab>
-                                            </Tabs>
+                                            <div className="row">
+                                                <div className="col-md-2">Image ID:</div>
+                                                <div className="col-md-3"><input type="textbox" className="form-control" name="breedId" value={state.breedId} onChange={handleChange}></input></div>
+                                                <div className="col-md-1">
+                                                    <Button variant="success" type="submit" onClick={GetImageById}>Run</Button>
+                                                </div>
+                                            </div>
                                         </Accordion.Body>
                                     </Accordion.Item>
                                 </Accordion>
@@ -224,6 +339,22 @@ let Content = () => {
                                 {state.errorMsg}
                             </Alert>
                         }
+                    </Col>
+                    <Col md={7}>
+                    <Card className="shadow-lg">    
+                            <Card.Header className="p-3" style={{backgroundColor: '#087A46'}}>
+                                <h5 style={{color:'white'}}>Ouput</h5>
+                            </Card.Header>
+                            <Card.Body>
+                                <Tabs defaultActiveKey="json" className='mb-3'>
+                                <Tab eventKey="json" title="JSON Output">
+                                    {state.isProcessing===true?<Spinner animation="border"/>:
+                                        state.outputJson.length > 0?<JSONPretty id="json-pretty" data={state.outputJson}></JSONPretty>:''
+                                    }
+                                </Tab>
+                                </Tabs>
+                            </Card.Body>
+                        </Card>
                     </Col>
                 </Row>
             </Container>
