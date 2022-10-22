@@ -13,7 +13,7 @@ let Content = () => {
 
     let [state, setState] = useState({
             page:1,
-            limit:1,
+            limit:20,
             breedId:'',
             outputJson: [],
             isProcessing: false,
@@ -100,7 +100,7 @@ let Content = () => {
                                 <h5 style={{color:'white'}}>API Documentation</h5>
                             </Card.Header>
                             <Card.Body>
-                                <Accordion defaultActiveKey="0">
+                                <Accordion>
                                     <Accordion.Item eventKey="0">
                                         <Accordion.Header>v1/breeds</Accordion.Header>
                                         <Accordion.Body>
@@ -140,9 +140,10 @@ let Content = () => {
                                             <div className="row">
                                                 <div className="col-md-1">Type</div>
                                                 <div className="col-md-3">
-                                                    <select className="form-control">
-                                                        <option>cat</option>
-                                                        <option>dog</option>
+                                                    <select className="form-control" name="type" value={state.type} onChange={handleChange}> 
+                                                        <option value="">Select one</option>
+                                                        <option value="cat">cat</option>
+                                                        <option value="dog">dog</option>
                                                     </select>
                                                 </div>
                                             </div>
